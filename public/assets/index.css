@@ -1,0 +1,73 @@
+body {
+    background-color: #222;
+    color: #eee;
+    font-family: monospace;
+}
+
+.container {
+    width: 800px;
+    margin: 0 auto;
+}
+
+.wrapper {
+    display: grid;
+    grid-template-columns: 200px auto;
+    grid-gap: 25px;
+}
+
+.pulls-count {
+    background-color: #444;
+    padding: 2px 5px;
+    border-radius: 2px;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.gauge {
+    text-align: center;
+}
+.gauge .figure {
+    font-size: 48px;
+}
+
+.pulls article {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-gap: 5px;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #111;
+}
+
+.pulls article .date {
+    text-align: right;
+}
+
+.opened {
+    color: #28a745;
+}
+.merged {
+    color: #6f42c1;
+}
+.closed {
+    color: #e10c02;
+}
+
+.pulls .pagination {
+    text-align: center;
+}
+
+a, a:active, a:focus {
+    color: #fff;
+    text-decoration: none;
+    border: 0;
+}
+
+a:hover {
+    color: #ccc;
+}
+
+.title {
+    grid-column-start: 1;
+    grid-column-end: 3;
+}
