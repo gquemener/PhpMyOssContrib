@@ -1,0 +1,23 @@
+version: '2'
+
+services:
+    php:
+        build: ./php
+        volumes:
+            - .:/app
+        working_dir: /app
+        environment:
+            - PDO_DSN=pgsql://postgres:5432/gildasquemener
+            - PDO_USER=postgres
+            - PDO_PWD=gildasquemener
+
+    postgres:
+        image: postgres:alpine
+        ports:
+            - 5432:5432
+        environment:
+            - POSTGRES_DB=gildasquemener
+            - POSTGRES_PASSWORD=gildasquemener
+        volumes:
+            - ./pgsql:/docker-entrypoint-initdb.d
+            - ./db:/var/lib/postgresql/data

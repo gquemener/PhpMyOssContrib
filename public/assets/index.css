@@ -2,10 +2,11 @@ body {
     background-color: #222;
     color: #eee;
     font-family: monospace;
+    font-size: 14px;
 }
 
 .container {
-    width: 800px;
+    width: 1000px;
     margin: 0 auto;
 }
 

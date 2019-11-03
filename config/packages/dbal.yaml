@@ -1,0 +1,10 @@
+services:
+    Doctrine\DBAL\Connection:
+        class: Doctrine\DBAL\Connection
+        factory: [Doctrine\DBAL\DriverManager, getConnection]
+        arguments:
+            -
+                driver: pdo_pgsql
+                user: '%env(string:PDO_USER)%'
+                password: '%env(string:PDO_PWD)%'
+                url: '%env(string:PDO_DSN)%'
