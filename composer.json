@@ -13,6 +13,7 @@
         "symfony/framework-bundle": "4.3.*",
         "symfony/twig-pack": "^1.0",
         "symfony/web-server-bundle": "4.3.*",
+        "symfony/webpack-encore-bundle": "^1.7",
         "symfony/yaml": "4.3.*"
     },
     "require-dev": {

@@ -1,3 +1,9 @@
-index:
-    path: /
+homepage:
+    path: /{_}
+    controller: App\Controller\DefaultController::index
+    defaults:
+        _: ''
+
+app_contribution_index:
+    path: /api/contributions
     controller: App\Controller\ContributionController::index

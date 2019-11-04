@@ -9,9 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
 use Twig\Environment;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
-final class ContributionController implements ServiceSubscriberInterface
+final class DefaultController implements ServiceSubscriberInterface
 {
     private $container;
 
@@ -20,11 +19,11 @@ final class ContributionController implements ServiceSubscriberInterface
         $this->container = $container;
     }
 
-    public function index(ContributionRepository $repository)
+    public function index()
     {
-        return new JsonResponse(
-            $repository->last10()
-        );
+        return new Response(
+            $this->container->get('twig')->render('contributions/index.html.twig'
+        ));
     }
 
     public static function getSubscribedServices()

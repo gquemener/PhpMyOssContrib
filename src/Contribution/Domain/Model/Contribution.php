@@ -3,7 +3,9 @@ declare(strict_types=1);
 
 namespace App\Contribution\Domain\Model;
 
-final class Contribution
+use JsonSerializable;
+
+final class Contribution implements JsonSerializable
 {
     private $id;
     private $title;
@@ -113,5 +115,19 @@ final class Contribution
     public function closedAt(): ?\DateTimeImmutable
     {
         return $this->closedAt;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->id->toInt(),
+            'projectName' => $this->projectName,
+            'title' => $this->title,
+            'url' => $this->url,
+            'state' => $this->state->toString(),
+            'createdAt' => $this->createdAt->format(\DateTimeInterface::ISO8601),
+            'updatedAt' => $this->updatedAt->format(\DateTimeInterface::ISO8601),
+            'closedAt' => $this->closedAt ? $this->closedAt->format(\DateTimeInterface::ISO8601) : null,
+        ];
     }
 }
