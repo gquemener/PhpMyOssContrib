@@ -2,7 +2,7 @@ version: '2'
 
 services:
     php:
-        build: ./php
+        build: ./docker/php
         volumes:
             - .:/app
         working_dir: /app
@@ -19,5 +19,5 @@ services:
             - POSTGRES_DB=gildasquemener
             - POSTGRES_PASSWORD=gildasquemener
         volumes:
-            - ./pgsql:/docker-entrypoint-initdb.d
+            - ./docker/pgsql:/docker-entrypoint-initdb.d
             - ./db:/var/lib/postgresql/data
