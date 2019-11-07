@@ -48,9 +48,10 @@ SQL;
         $this->connection->executeUpdate(sprintf($sql, self::TABLE_NAME), $contribution->toArray());
     }
 
-    public function last10(): array
+    public function all(int $page = 1): array
     {
-        $sql = sprintf('SELECT * FROM %s ORDER by created_at DESC LIMIT 10', self::TABLE_NAME);
+        $offset = ($page - 1) * 10;
+        $sql = sprintf('SELECT * FROM %s ORDER by created_at DESC LIMIT 10 OFFSET %d ', self::TABLE_NAME, $offset);
 
         $stmt = $this->connection->query($sql);
 

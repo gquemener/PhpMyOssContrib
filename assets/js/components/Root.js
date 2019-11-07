@@ -1,14 +1,16 @@
 import React from 'react';
-import Menu from './Menu';
-import ContributionList from './ContributionList';
+import { Provider } from 'react-redux';
+import { Route } from 'react-router';
+import { BrowserRouter } from 'react-router-dom';
+import App from './App';
 
-const Root = () =>
-    <div className="root">
-        <h1 className="title">OSS Contributions</h1>
-        <div className="wrapper">
-            <Menu />
-            <ContributionList />
-        </div>
-    </div>
+const Root = ({ store }) =>
+    <Provider store={store}>
+        <BrowserRouter>
+            <div>
+                <Route path='/' component={App} />
+            </div>
+        </BrowserRouter>
+    </Provider>
 
 export default Root;

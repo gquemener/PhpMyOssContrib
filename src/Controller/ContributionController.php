@@ -20,10 +20,10 @@ final class ContributionController implements ServiceSubscriberInterface
         $this->container = $container;
     }
 
-    public function index(ContributionRepository $repository)
+    public function index(Request $request, ContributionRepository $repository)
     {
         return new JsonResponse(
-            $repository->last10()
+            $repository->all((int) $request->query->get('page', 1))
         );
     }
 

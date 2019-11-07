@@ -5,7 +5,7 @@ body {
     font-size: 14px;
 }
 
-.root {
+.container {
     width: 1000px;
     margin: 0 auto;
 }
@@ -56,6 +56,9 @@ body {
 
 .contributions .pagination {
     text-align: center;
+}
+.pagination a {
+    margin: 10px 5px;
 }
 
 a, a:active, a:focus {
