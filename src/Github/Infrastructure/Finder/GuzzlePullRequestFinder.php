@@ -1,61 +1,64 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Github\Infrastructure\Repository;
+namespace App\Github\Infrastructure\Finder;
 
-use App\Github\Domain\Repository\PullRequestRepository;
-use App\Github\Domain\Model\PullRequest;
-use Traversable;
+use App\Github\Domain\Finder\PullRequestFinder;
 use Iterator;
 use GuzzleHttp\Client;
 use function GuzzleHttp\Psr7\parse_header;
-use GuzzleHttp\HandlerStack;
-use Kevinrob\GuzzleCache\CacheMiddleware;
-use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
-use Kevinrob\GuzzleCache\Storage\DoctrineCacheStorage;
-use Doctrine\Common\Cache\FilesystemCache;
 
-final class GuzzleRepository implements PullRequestRepository
+final class GuzzlePullRequestFinder implements PullRequestFinder
 {
     private static $client;
 
-    public function all(): Traversable
+    private $username;
+    private $token;
+
+    public function __construct(string $username, string $token)
     {
-        return $this->getPaginatedIterator('is:public is:pr author:gquemener', [PullRequest::class, 'found']);
+        $this->username = $username;
+        $this->token = $token;
     }
 
-    public function merged(): Traversable
+    public function all(): object
     {
-        return $this->getPaginatedIterator(
-            'is:public is:pr is:merged author:gquemener',
-            [PullRequest::class, 'foundMerged']
-        );
+        return $this->getPaginatedIterator(sprintf(
+            'is:public is:pr author:%s',
+            $this->username
+        ));
     }
 
-    private function getPaginatedIterator(string $query, callable $factory): Iterator
+    public function merged(): object
+    {
+        return $this->getPaginatedIterator(sprintf(
+            'is:public is:pr is:merged author:%s',
+            $this->username
+        ));
+    }
+
+    private function getPaginatedIterator(string $query): Iterator
     {
         if (null === self::$client) {
             self::$client = new Client([
                 'auth' => [
-                    'gquemener',
-                    '8928b3d6964c10da3652cfb06a5ffb645cbe4cf5'
+                    $this->username,
+                    $this->token
                 ]
             ]);
         }
 
-        return new class(self::$client, $query, $factory) implements Iterator {
+        return new class(self::$client, $query) implements Iterator {
             private $client;
             private $query;
-            private $factory;
             private $page = 1;
             private $results = [];
             private $index = 0;
 
-            public function __construct(Client $client, string $query, callable $factory)
+            public function __construct(Client $client, string $query)
             {
                 $this->client = $client;
                 $this->query = $query;
-                $this->factory = $factory;
             }
 
             public function next()
@@ -92,7 +95,7 @@ final class GuzzleRepository implements PullRequestRepository
                 $result = json_decode((string) $response->getBody(), true);
 
                 $this->rewind();
-                $this->results = array_map($this->factory, $result['items']);
+                $this->results = $result['items'];
 
                 return $this->results[$this->index];
             }

@@ -6,14 +6,10 @@ services:
         volumes:
             - .:/app
         working_dir: /app
-        environment:
-            - PDO_DSN=pgsql://postgres:5432/gildasquemener
-            - PDO_USER=postgres
-            - PDO_PWD=gildasquemener
         ports:
             - 8080:8080
-        entrypoint: bin/console
-        command: server:run 0.0.0.0:8080
+        entrypoint: php
+        command: bin/console server:run 0.0.0.0:8080
 
     postgres:
         image: postgres:alpine

@@ -26,13 +26,7 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    App\ServiceBus\EventBus:
-        class: App\ServiceBus\SymfonyDispatcherEventBus
+    App\Github\Infrastructure\Finder\GuzzlePullRequestFinder:
         arguments:
-            - '@app.domain_event_dispatcher'
-
-    app.domain_event_dispatcher:
-        class: Symfony\Component\EventDispatcher\EventDispatcher
-        calls:
-            - ['addListener', ['App\Github\Domain\Event\PullRequestFound', '@App\Contribution\Domain\Listener\SynchronizeContribution']]
-            - ['addListener', ['App\Github\Domain\Event\MergedPullRequestFound', '@App\Contribution\Domain\Listener\MarkMergedContribution']]
+            $username: '%env(string:APP_GITHUB_USERNAME)%'
+            $token: '%env(string:APP_GITHUB_TOKEN)%'

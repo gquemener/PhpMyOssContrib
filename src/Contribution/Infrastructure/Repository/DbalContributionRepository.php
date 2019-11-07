@@ -13,6 +13,7 @@ final class DbalContributionRepository implements ContributionRepository
     private const TABLE_NAME = 'contributions';
 
     private $connection;
+    private $identityMap = [];
 
     public function __construct(Connection $connection)
     {
@@ -21,6 +22,9 @@ final class DbalContributionRepository implements ContributionRepository
 
     public function find(ContributionId $id): ?Contribution
     {
+        if (null !== $contribution = $this->getFromIdentityMap($id)) {
+            return $contribution;
+        }
         $sql = sprintf('SELECT * FROM %s WHERE id = :id', self::TABLE_NAME);
 
         $result = $this->connection->fetchAssoc($sql, ['id' => $id->toInt()]);
@@ -28,7 +32,10 @@ final class DbalContributionRepository implements ContributionRepository
             return null;
         }
 
-        return Contribution::fromArray($result);
+        $contribution = Contribution::fromArray($result);
+        $this->addToIdentityMap($contribution);
+
+        return $contribution;
     }
 
     public function persist(Contribution $contribution): void
@@ -46,6 +53,7 @@ ON CONFLICT ON CONSTRAINT contributions_pkey
         closed_at = :closed_at
 SQL;
         $this->connection->executeUpdate(sprintf($sql, self::TABLE_NAME), $contribution->toArray());
+        $this->addToIdentityMap($contribution);
     }
 
     public function all(int $page = 1): array
@@ -55,6 +63,22 @@ SQL;
 
         $stmt = $this->connection->query($sql);
 
-        return array_map([Contribution::class, 'fromArray'], $stmt->fetchAll());
+        $contributions = array_map([Contribution::class, 'fromArray'], $stmt->fetchAll());
+
+        foreach ($contributions as $contribution) {
+            $this->addToIdentityMap($contribution);
+        }
+
+        return $contributions;
+    }
+
+    private function getFromIdentityMap(ContributionId $id): ?Contribution
+    {
+        return $this->identityMap[$id->toInt()] ?? null;
+    }
+
+    private function addToIdentityMap(Contribution $contribution): void
+    {
+        $this->identityMap[$contribution->id()->toInt()] = $contribution;
     }
 }

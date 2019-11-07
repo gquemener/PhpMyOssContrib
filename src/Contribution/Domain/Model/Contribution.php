@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace App\Contribution\Domain\Model;
 
 use JsonSerializable;
+use DateTimeImmutable;
+use DateTimeInterface;
 
 final class Contribution implements JsonSerializable
 {
@@ -21,7 +23,8 @@ final class Contribution implements JsonSerializable
         string $title,
         string $url,
         \DateTimeImmutable $createdAt,
-        \DateTimeImmutable $updatedAt
+        \DateTimeImmutable $updatedAt,
+        ContributionState $state
     ) {
         $this->id = $id;
         $this->title = $title;
@@ -32,17 +35,43 @@ final class Contribution implements JsonSerializable
         $this->projectName = $matches[1];
         $this->createdAt = $createdAt;
         $this->updatedAt = $updatedAt;
-        $this->state = ContributionState::opened();
+        $this->state = $state;
+    }
+
+    public static function fromGithubPullRequest(array $data): self
+    {
+        $self = self::open(
+            ContributionId::fromInt((int) $data['id']),
+            (string) $data['title'],
+            (string) $data['html_url'],
+            DateTimeImmutable::createFromFormat(DateTimeInterface::ISO8601, $data['created_at']),
+            DateTimeImmutable::createFromFormat(DateTimeInterface::ISO8601, $data['updated_at'])
+        );
+
+        if ('closed' === (string) $data['state']) {
+            $self->close(
+                DateTimeImmutable::createFromFormat(DateTimeInterface::ISO8601, $data['closed_at'])
+            );
+        }
+
+        return $self;
     }
 
     public static function open(
         ContributionId $id,
         string $title,
         string $url,
-        \DateTimeImmutable $createdAt,
-        \DateTimeImmutable $updatedAt
+        DateTimeImmutable $createdAt,
+        DateTimeImmutable $updatedAt
     ): self {
-        return new self($id, $title, $url, $createdAt, $updatedAt);
+        return new self(
+            $id,
+            $title,
+            $url,
+            $createdAt,
+            $updatedAt,
+            ContributionState::opened()
+        );
     }
 
     public function merge(): void
@@ -76,15 +105,20 @@ final class Contribution implements JsonSerializable
             $data['title'],
             $data['url'],
             \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $data['created_at']),
-            \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $data['updated_at'])
+            \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $data['updated_at']),
+            ContributionState::fromName($data['state'])
         );
 
-        $self->state = ContributionState::fromName($data['state']);
         $self->closedAt = $data['closed_at'] ?
             \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $data['closed_at']) :
             null;
 
         return $self;
+    }
+
+    public function id(): ContributionId
+    {
+        return $this->id;
     }
 
     public function url(): string

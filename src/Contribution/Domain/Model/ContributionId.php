@@ -14,9 +14,9 @@ final class ContributionId
         $this->id = $id;
     }
 
-    public static function fromGithubId(PullRequestId $id): self
+    public static function fromGithubPullRequest(array $data): self
     {
-        return new self($id->toInt());
+        return new self((int) $data['id']);
     }
 
     public static function fromInt(int $id): self
