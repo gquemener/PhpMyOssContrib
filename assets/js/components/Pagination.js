@@ -1,16 +1,19 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import PaginationLink from './PaginationLink';
 
-const Pagination = () => (
-    <div className="pagination">
-        <a href="#">&lt;</a>
-        <a href="#">1</a>
-        <a href="#">2</a>
-        <a href="#">3</a>
-        ...
-        <a href="#">7</a>
-        <a href="#">8</a>
-        <a href="#">&gt;</a>
-    </div>
-);
+class Pagination extends React.Component {
+    render() {
+        return (
+            <div className="pagination">
+                {
+                    [...Array(this.props.pagesCount).keys()].map(index => <PaginationLink key={index} page={index + 1} />)
+                }
+            </div>
+        )
+    }
+}
 
-export default Pagination;
+const mapStateToProps = ({ pagesCount }) => ({ pagesCount });
+
+export default connect(mapStateToProps)(Pagination);

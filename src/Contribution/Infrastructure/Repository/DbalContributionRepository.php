@@ -11,6 +11,7 @@ use Doctrine\DBAL\Connection;
 final class DbalContributionRepository implements ContributionRepository
 {
     private const TABLE_NAME = 'contributions';
+    private const PAGE_SIZE = 10;
 
     private $connection;
     private $identityMap = [];
@@ -58,7 +59,7 @@ SQL;
 
     public function all(int $page = 1): array
     {
-        $offset = ($page - 1) * 10;
+        $offset = ($page - 1) * self::PAGE_SIZE;
         $sql = sprintf('SELECT * FROM %s ORDER by created_at DESC LIMIT 10 OFFSET %d ', self::TABLE_NAME, $offset);
 
         $stmt = $this->connection->query($sql);
@@ -70,6 +71,13 @@ SQL;
         }
 
         return $contributions;
+    }
+
+    public function pagesCount(): int
+    {
+        $sql = sprintf('SELECT CEIL(COUNT(*)::numeric / %d) FROM %s', self::PAGE_SIZE, self::TABLE_NAME);
+
+        return (int) $this->connection->fetchColumn($sql);
     }
 
     private function getFromIdentityMap(ContributionId $id): ?Contribution

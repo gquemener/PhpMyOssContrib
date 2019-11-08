@@ -3,11 +3,12 @@ require('../css/index.css');
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Root from './components/Root'
-import { createStore } from 'redux';
+import { compose, createStore, combineReducers, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
 
-const reducer = (state = [], action) => {
+const contributions = (state = [], action) => {
     switch (action.type) {
-        case 'CONTRIBUTIONS_RECEIVED':
+        case 'RECEIVE_CONTRIBUTIONS':
             return action.contributions;
 
         default:
@@ -15,7 +16,23 @@ const reducer = (state = [], action) => {
     }
 };
 
-const store = createStore(reducer);
+const pagesCount = (state = 0, action) => {
+    switch (action.type) {
+        case 'RECEIVE_CONTRIBUTIONS':
+            return action.pagesCount;
+
+        default:
+            return state;
+    }
+};
+
+const composeEnhancers =
+    typeof window === 'object' &&
+    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
+    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({}) :
+    compose;
+
+const store = createStore(combineReducers({ contributions, pagesCount }), composeEnhancers(applyMiddleware(thunk)));
 
 ReactDOM.render(
     <Root store={store} />,

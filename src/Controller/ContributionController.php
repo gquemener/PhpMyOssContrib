@@ -7,30 +7,19 @@ use App\Contribution\Domain\Repository\ContributionRepository;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
-use Twig\Environment;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-final class ContributionController implements ServiceSubscriberInterface
+final class ContributionController
 {
-    private $container;
-
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
-
     public function index(Request $request, ContributionRepository $repository)
     {
         return new JsonResponse(
-            $repository->all((int) $request->query->get('page', 1))
+            $repository->all((int) $request->query->get('page', 1)),
+            200,
+            [
+                'Pages-Count' => $repository->pagesCount(),
+            ]
         );
-    }
-
-    public static function getSubscribedServices()
-    {
-        return [
-            'twig' => '?'.Environment::class,
-        ];
     }
 }

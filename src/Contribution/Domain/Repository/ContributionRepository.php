@@ -13,4 +13,6 @@ interface ContributionRepository
     public function persist(Contribution $contribution): void;
 
     public function all(int $page = 1): array;
+
+    public function pagesCount(): int;
 }

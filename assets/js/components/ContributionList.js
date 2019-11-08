@@ -4,14 +4,13 @@ import { withRouter } from 'react-router';
 import queryString from 'query-string';
 import Contribution from './Contribution';
 import Pagination from './Pagination';
-import * as api from '../api';
+import * as actions from '../actions';
 
 class ContributionList extends Component {
     componentDidMount() {
-        const { page } = queryString.parse(this.props.location.search)
+        const { page } = queryString.parse(this.props.location.search);
 
-        api.fetchContributions(page)
-            .then(this.props.onContributionsReceived);
+        this.props.fetchContributions(page);
     }
 
     render() {
@@ -28,12 +27,6 @@ class ContributionList extends Component {
     }
 }
 
-const mapStateToProps = (state) => ({
-    contributions: state
-});
+const mapStateToProps = ({ contributions }) => ({ contributions });
 
-const mapDispatchToProps = (dispatch) => ({
-    onContributionsReceived: (contributions) => dispatch({ type: 'CONTRIBUTIONS_RECEIVED', contributions })
-});
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ContributionList));
+export default withRouter(connect(mapStateToProps, actions)(ContributionList));
