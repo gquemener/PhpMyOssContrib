@@ -15,4 +15,6 @@ interface ContributionRepository
     public function all(int $page = 1): array;
 
     public function pagesCount(): int;
+
+    public function openedCount(): int;
 }

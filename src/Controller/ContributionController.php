@@ -19,6 +19,7 @@ final class ContributionController
             200,
             [
                 'Pages-Count' => $repository->pagesCount(),
+                'Opened-Contributions-Count' => $repository->openedCount(),
             ]
         );
     }

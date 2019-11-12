@@ -3,7 +3,8 @@ export const fetchContributions = (page = 1) => {
         .then(async response => {
             const contributions = await response.json();
             const pagesCount = parseInt(response.headers.get('Pages-Count')) || 0;
+            const openedCount = parseInt(response.headers.get('Opened-Contributions-Count')) || 0;
 
-            return { contributions, pagesCount };
+            return { contributions, pagesCount, openedCount };
         });
 };

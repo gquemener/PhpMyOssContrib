@@ -7,6 +7,7 @@ use App\Contribution\Domain\Repository\ContributionRepository;
 use App\Contribution\Domain\Model\Contribution;
 use App\Contribution\Domain\Model\ContributionId;
 use Doctrine\DBAL\Connection;
+use App\Contribution\Domain\Model\ContributionState;
 
 final class DbalContributionRepository implements ContributionRepository
 {
@@ -60,11 +61,22 @@ SQL;
     public function all(int $page = 1): array
     {
         $offset = ($page - 1) * self::PAGE_SIZE;
-        $sql = sprintf('SELECT * FROM %s ORDER by created_at DESC LIMIT 10 OFFSET %d ', self::TABLE_NAME, $offset);
+        $sql = <<<SQL
+    SELECT * FROM %s
+        ORDER by
+            CASE state
+                WHEN 'opened' then 1
+                ELSE 2
+            END,
+            created_at DESC
+        LIMIT 10 OFFSET :offset
+SQL;
 
-        $stmt = $this->connection->query($sql);
 
-        $contributions = array_map([Contribution::class, 'fromArray'], $stmt->fetchAll());
+        $contributions = array_map(
+            [Contribution::class, 'fromArray'],
+            $this->connection->fetchAll(sprintf($sql, self::TABLE_NAME), ['offset' => $offset])
+        );
 
         foreach ($contributions as $contribution) {
             $this->addToIdentityMap($contribution);
@@ -78,6 +90,13 @@ SQL;
         $sql = sprintf('SELECT CEIL(COUNT(*)::numeric / %d) FROM %s', self::PAGE_SIZE, self::TABLE_NAME);
 
         return (int) $this->connection->fetchColumn($sql);
+    }
+
+    public function openedCount(): int
+    {
+        $sql = sprintf('SELECT COUNT(*) FROM %s WHERE state = :state', self::TABLE_NAME);
+
+        return (int) $this->connection->fetchColumn($sql, ['state' => ContributionState::opened()]);
     }
 
     private function getFromIdentityMap(ContributionId $id): ?Contribution

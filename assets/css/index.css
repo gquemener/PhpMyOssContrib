@@ -17,11 +17,17 @@ body {
 }
 
 .pulls-count {
+    color: #28a745;
     background-color: #444;
     padding: 2px 5px;
-    border-radius: 2px;
+    border-radius: 9px;
     font-size: 10px;
     font-weight: bold;
+    border: 1px solid #000;
+}
+
+.menu li {
+    line-height: 20px;
 }
 
 .gauge {
