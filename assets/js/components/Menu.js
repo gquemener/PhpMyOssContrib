@@ -1,23 +1,28 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Loading from './Loading';
+import * as store from '../configureStore';
 
 const Menu = (props) =>
     <div className="menu">
-        <Loading active={props.fetching} />
         <div className="gauge">
-            <div className="figure">{props.openedCount}</div>
+            <div className="figure">{store.getOpenedCount(props.contributions)}</div>
             <div className="label">opened PRs</div>
         </div>
+        <Loading active={props.fetching} />
         <ul>
             {
-                props.projects.map(p => 
-                    <li><a href="#">{p}</a> <span className="pulls-count">0</span></li>
+                Object.keys(props.contributions.orgs).map(key =>
+                    <li key={key}>
+                        <a href="#">{props.contributions.orgs[key].name}</a>
+                        <span className="contribs-count">{props.contributions.orgs[key].contribs}</span>
+                        { 0 < props.contributions.orgs[key].opened ? <span className="opened-count">{props.contributions.orgs[key].opened}</span> : '' }
+                    </li>
                 )
             }
         </ul>
     </div>
 
-const mapStateToProps = ({ openedCount, fetching, projects }) => ({ openedCount, fetching, projects });
+const mapStateToProps = ({ contributions, fetching }) => ({ contributions, fetching });
 
 export default connect(mapStateToProps)(Menu);

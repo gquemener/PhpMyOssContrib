@@ -1,7 +1,11 @@
 import * as api from './api';
 
 export const fetchContributions = (page = 1) => (dispatch) => {
-    dispatch({ type: 'FETCH_CONTRIBUTIONS', page });
-    api.fetchContributions(page)
+    dispatch({ type: 'FETCH_CONTRIBUTIONS' });
+    api.fetchContributions()
         .then(response => dispatch({ type: 'RECEIVE_CONTRIBUTIONS', ...response }));
+};
+
+export const moveToPage = (page) => (dispatch) => {
+    dispatch({ type: 'MOVE_TO_PAGE', page });
 };

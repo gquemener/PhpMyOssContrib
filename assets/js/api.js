@@ -1,10 +1,6 @@
 export const fetchContributions = (page = 1) => {
-    return fetch(`/api/contributions?page=${page}`)
-        .then(async response => {
-            const contributions = await response.json();
-            const pagesCount = parseInt(response.headers.get('Pages-Count')) || 0;
-            const openedCount = parseInt(response.headers.get('Opened-Contributions-Count')) || 0;
-
-            return { contributions, pagesCount, openedCount };
-        });
+    return fetch('/api/contributions', { cache: 'no-cache' })
+        .then(response => response.json())
+        .then(contributions => ({ contributions }))
+    ;
 };

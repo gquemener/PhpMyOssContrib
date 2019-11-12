@@ -68,14 +68,13 @@ SQL;
                 WHEN 'opened' then 1
                 ELSE 2
             END,
-            created_at DESC
-        LIMIT 10 OFFSET :offset
+            updated_at DESC
 SQL;
 
 
         $contributions = array_map(
             [Contribution::class, 'fromArray'],
-            $this->connection->fetchAll(sprintf($sql, self::TABLE_NAME), ['offset' => $offset])
+            $this->connection->fetchAll(sprintf($sql, self::TABLE_NAME))
         );
 
         foreach ($contributions as $contribution) {
@@ -85,18 +84,18 @@ SQL;
         return $contributions;
     }
 
-    public function pagesCount(): int
+    public function lastModified(): \DateTimeImmutable
     {
-        $sql = sprintf('SELECT CEIL(COUNT(*)::numeric / %d) FROM %s', self::PAGE_SIZE, self::TABLE_NAME);
+        $updatedAt =  $this->connection->fetchColumn(sprintf(
+            'SELECT updated_at FROM %s ORDER BY updated_at DESC LIMIT 1',
+            self::TABLE_NAME
+        ));
 
-        return (int) $this->connection->fetchColumn($sql);
-    }
-
-    public function openedCount(): int
-    {
-        $sql = sprintf('SELECT COUNT(*) FROM %s WHERE state = :state', self::TABLE_NAME);
-
-        return (int) $this->connection->fetchColumn($sql, ['state' => ContributionState::opened()]);
+        return \DateTimeImmutable::createFromFormat(
+            'Y-m-d H:i:s',
+            $updatedAt,
+            new \DateTimeZone('UTC')
+        );
     }
 
     private function getFromIdentityMap(ContributionId $id): ?Contribution

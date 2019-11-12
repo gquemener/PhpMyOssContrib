@@ -14,13 +14,18 @@ final class ContributionController
 {
     public function index(Request $request, ContributionRepository $repository)
     {
-        return new JsonResponse(
-            $repository->all((int) $request->query->get('page', 1)),
-            200,
-            [
-                'Pages-Count' => $repository->pagesCount(),
-                'Opened-Contributions-Count' => $repository->openedCount(),
-            ]
-        );
+        $response = new JsonResponse();
+        $response->setCache([
+            'last_modified' => $repository->lastModified(),
+            'public' => true,
+        ]);
+
+        if ($response->isNotModified($request)) {
+            return $response;
+        }
+
+        $response->setData($repository->all());
+
+        return $response;
     }
 }

@@ -1,4 +1,6 @@
 body {
+    margin: 0;
+    padding: 0;
     background-color: #222;
     color: #eee;
     font-family: monospace;
@@ -16,7 +18,7 @@ body {
     grid-gap: 25px;
 }
 
-.pulls-count {
+.opened-count {
     color: #28a745;
     background-color: #444;
     padding: 2px 5px;
@@ -24,6 +26,18 @@ body {
     font-size: 10px;
     font-weight: bold;
     border: 1px solid #000;
+    margin-left: 5px;
+}
+
+.contribs-count {
+    color: #eee;
+    background-color: #444;
+    padding: 2px 5px;
+    border-radius: 9px;
+    font-size: 10px;
+    font-weight: bold;
+    border: 1px solid #000;
+    margin-left: 5px;
 }
 
 .menu li {
@@ -35,6 +49,10 @@ body {
 }
 .gauge .figure {
     font-size: 48px;
+}
+
+.contributions {
+    width: 775px;
 }
 
 .contributions article {
@@ -64,7 +82,8 @@ body {
     text-align: center;
 }
 .pagination a {
-    margin: 10px 5px;
+    display: inline-block;
+    margin: 5px 10px;
 }
 
 a, a:active, a:focus {
