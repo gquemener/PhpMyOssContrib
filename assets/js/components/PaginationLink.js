@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { connect } from 'react-redux';
-import * as actions from '../actions';
+import { withRouter } from 'react-router';
 
-const PaginationLink = ({ page, moveToPage }) => (
-    <Link to={{ search: `page=${page}` }} onClick={moveToPage.bind(this, page)}>{page}</Link>
-);
+const PaginationLink = ({ page, location }) => {
+    const query = new URLSearchParams(location.search);
+    query.set('page', page);
 
-export default connect(() => ({}), actions)(PaginationLink);
+    return <Link to={{ search: query.toString() }}>{page}</Link>
+};
+
+export default withRouter(PaginationLink);

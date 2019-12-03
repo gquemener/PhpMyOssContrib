@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Loading from './Loading';
 import * as store from '../configureStore';
+import Project from './Project';
 
 const Menu = (props) =>
     <div className="menu">
@@ -14,9 +15,7 @@ const Menu = (props) =>
             {
                 Object.keys(props.contributions.orgs).map(key =>
                     <li key={key}>
-                        <a href="#">{props.contributions.orgs[key].name}</a>
-                        <span className="contribs-count">{props.contributions.orgs[key].contribs}</span>
-                        { 0 < props.contributions.orgs[key].opened ? <span className="opened-count">{props.contributions.orgs[key].opened}</span> : '' }
+                        <Project {...props.contributions.orgs[key]} />
                     </li>
                 )
             }

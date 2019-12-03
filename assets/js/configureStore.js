@@ -1,12 +1,20 @@
 import { compose, createStore, combineReducers, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 
-export const getContributions = (contributions) => {
-    return contributions._all[contributions.page - 1] || [];
+const filterByOrg = (contributions, org) => {
+    if (org) {
+        return contributions.filter(c => c.projectName.substr(0, c.projectName.indexOf('/')) === org);
+    }
+
+    return contributions;
 }
 
-export const getPagesCount = (contributions) => {
-    return contributions._all.length;
+export const getContributions = ({ _all, _org, _page }) => {
+    return filterByOrg(_all, _org).slice((_page - 1) * 10, (_page - 1) * 10 + 10);
+}
+
+export const getPagesCount = ({ _all, _org }) => {
+    return Math.ceil(filterByOrg(_all, _org).length / 10);
 }
 
 export const getOpenedCount = (contributions) => {
@@ -15,29 +23,6 @@ export const getOpenedCount = (contributions) => {
 
 const configureStore = () => {
     const contributions = (state, action) => {
-        if (undefined === state) {
-            return {
-                page: 1,
-                openedCount: 0,
-                orgs: [],
-                _all: [],
-            };
-        }
-
-        const grouper = (acc, cur) => {
-            if (0 === acc.length) {
-                acc[0] = [];
-            }
-
-            if (acc[acc.length - 1].length < 10) {
-                acc[acc.length - 1].push(cur);
-            } else {
-                acc[acc.length] = [cur];
-            }
-
-            return acc;
-        };
-
         const openedCounter = (acc, cur) => 'opened' === cur.state ? acc + 1 : acc;
 
         const groupByOrg = (acc, cur) => {
@@ -49,11 +34,24 @@ const configureStore = () => {
             if ('opened' === cur.state) {
                 acc[org].opened++;
             }
+            if (org === 'prooph') {
+                let a = 1;
+            }
 
             acc[org].contribs++;
 
             return acc;
         };
+
+        if (undefined === state) {
+            return {
+                openedCount: 0,
+                orgs: [],
+                _all: [],
+                _org: null,
+                _page: 1,
+            };
+        }
 
         switch (action.type) {
             case 'RECEIVE_CONTRIBUTIONS':
@@ -74,12 +72,17 @@ const configureStore = () => {
                         .sort((a, b) => b.contribs - a.contribs)
                         .sort((a, b) => b.opened - a.opened)
                         .slice(0, 25),
-                    _all: action.contributions.reduce(grouper, []),
+                    _all: action.contributions,
                 });
 
             case 'MOVE_TO_PAGE':
                 return Object.assign({}, state, {
-                    page: action.page
+                    _page: action.page
+                });
+
+            case 'FILTER_BY_ORG':
+                return Object.assign({}, state, {
+                    _org: action.org
                 });
 
             default:

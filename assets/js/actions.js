@@ -9,3 +9,7 @@ export const fetchContributions = (page = 1) => (dispatch) => {
 export const moveToPage = (page) => (dispatch) => {
     dispatch({ type: 'MOVE_TO_PAGE', page });
 };
+
+export const filterByOrg = (org) => (dispatch) => {
+    dispatch({ type: 'FILTER_BY_ORG', org });
+};
