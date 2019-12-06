@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import Loading from './Loading';
 import * as store from '../configureStore';
 import Project from './Project';
+import ActiveFilter from './ActiveFilter';
 
 const Menu = (props) =>
     <div className="menu">
@@ -11,6 +12,7 @@ const Menu = (props) =>
             <div className="label">opened PRs</div>
         </div>
         <Loading active={props.fetching} />
+        <ActiveFilter name={props.contributions.activeOrg} />
         <ul>
             {
                 Object.keys(props.contributions.orgs).map(key =>

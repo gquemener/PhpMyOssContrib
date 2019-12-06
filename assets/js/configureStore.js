@@ -9,12 +9,12 @@ const filterByOrg = (contributions, org) => {
     return contributions;
 }
 
-export const getContributions = ({ _all, _org, _page }) => {
-    return filterByOrg(_all, _org).slice((_page - 1) * 10, (_page - 1) * 10 + 10);
+export const getContributions = ({ _all, activeOrg, _page }) => {
+    return filterByOrg(_all, activeOrg).slice((_page - 1) * 10, (_page - 1) * 10 + 10);
 }
 
-export const getPagesCount = ({ _all, _org }) => {
-    return Math.ceil(filterByOrg(_all, _org).length / 10);
+export const getPagesCount = ({ _all, activeOrg }) => {
+    return Math.ceil(filterByOrg(_all, activeOrg).length / 10);
 }
 
 export const getOpenedCount = (contributions) => {
@@ -46,9 +46,9 @@ const configureStore = () => {
         if (undefined === state) {
             return {
                 openedCount: 0,
+                activeOrg: null,
                 orgs: [],
                 _all: [],
-                _org: null,
                 _page: 1,
             };
         }
@@ -82,7 +82,7 @@ const configureStore = () => {
 
             case 'FILTER_BY_ORG':
                 return Object.assign({}, state, {
-                    _org: action.org
+                    activeOrg: action.org
                 });
 
             default:

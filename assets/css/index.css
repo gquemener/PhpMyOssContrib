@@ -100,3 +100,18 @@ a:hover {
     grid-column-start: 1;
     grid-column-end: 3;
 }
+
+.activeFilter {
+    display: inline-block;
+    padding: 3px 10px;
+    margin-left: 30px;
+    background-color: #e10c02;
+    border-radius: 5px;
+}
+
+.activeFilter .remove {
+    margin-left: 10px;
+    padding: 0;
+    border: 0;
+    background: none;
+}
