@@ -80,6 +80,10 @@ SQL;
             self::TABLE_NAME
         ));
 
+        if (false === $updatedAt) {
+            return new \DateTimeImmutable('now');
+        }
+
         return \DateTimeImmutable::createFromFormat(
             'Y-m-d H:i:s',
             $updatedAt,
