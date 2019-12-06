@@ -11,8 +11,4 @@ interface ContributionRepository
     public function find(ContributionId $id): ?Contribution;
 
     public function persist(Contribution $contribution): void;
-
-    public function all(int $page = 1): array;
-
-    public function lastModified(): \DateTimeImmutable;
 }

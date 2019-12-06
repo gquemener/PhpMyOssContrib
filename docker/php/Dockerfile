@@ -1,4 +1,4 @@
-FROM php:rc-cli-alpine3.10
+FROM php:7.4-cli-alpine3.10
 
 ENV PHPIZE_DEPS \
         autoconf \

@@ -7,9 +7,25 @@ services:
             - .:/app
         working_dir: /app
         ports:
-            - 8080:8080
+            - 8081:8080
         entrypoint: php
         command: bin/console server:run 0.0.0.0:8080
+
+    read-model-contributions:
+        build: ./docker/php
+        volumes:
+            - .:/app
+        working_dir: /app
+        entrypoint: php
+        command: bin/console -vvv app:read-model:subscribe contributions
+
+    read-model-contributions-per-year:
+        build: ./docker/php
+        volumes:
+            - .:/app
+        working_dir: /app
+        entrypoint: php
+        command: bin/console -vvv app:read-model:subscribe contributions-per-year
 
     postgres:
         image: postgres:alpine
@@ -21,3 +37,13 @@ services:
         volumes:
             - ./docker/pgsql:/docker-entrypoint-initdb.d
             - ./db:/var/lib/postgresql/data
+
+    eventstore-node:
+        image: eventstore/eventstore
+        ports:
+            - 2113:2113
+
+    adminer:
+        image: adminer
+        ports:
+            - 8082:8080

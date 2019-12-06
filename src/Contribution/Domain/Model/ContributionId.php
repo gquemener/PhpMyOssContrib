@@ -7,24 +7,19 @@ use App\Github\Domain\Model\PullRequestId;
 
 final class ContributionId
 {
-    private $id;
+    private string $id;
 
-    private function __construct(int $id)
+    private function __construct(string $id)
     {
         $this->id = $id;
     }
 
-    public static function fromGithubPullRequest(array $data): self
-    {
-        return new self((int) $data['id']);
-    }
-
-    public static function fromInt(int $id): self
+    public static function fromString(string $id): self
     {
         return new self($id);
     }
 
-    public function toInt(): int
+    public function toString(): string
     {
         return $this->id;
     }

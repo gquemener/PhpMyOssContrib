@@ -9,14 +9,15 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Contribution\Application\ReadModel\Contributions;
 
 final class ContributionController
 {
-    public function index(Request $request, ContributionRepository $repository)
+    public function index(Request $request, Contributions $contributions)
     {
         $response = new JsonResponse();
         $response->setCache([
-            'last_modified' => $repository->lastModified(),
+            'last_modified' => $contributions->lastModified(),
             'public' => true,
         ]);
 
@@ -24,7 +25,7 @@ final class ContributionController
             return $response;
         }
 
-        $response->setData($repository->all());
+        $response->setData($contributions->all());
 
         return $response;
     }
