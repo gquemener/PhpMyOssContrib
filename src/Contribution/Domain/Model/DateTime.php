@@ -9,7 +9,7 @@ use InvalidArgumentException;
 
 final class DateTime
 {
-    private const FORMAT = DateTimeInterface::ISO8601;
+    private const FORMAT = DateTimeInterface::ATOM;
 
     private DateTimeImmutable $datetime;
 
