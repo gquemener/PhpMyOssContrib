@@ -5,6 +5,8 @@ services:
         arguments:
             -
                 driver: pdo_pgsql
+                host: '%env(string:APP_PDO_HOST)%'
+                port: '%env(string:APP_PDO_PORT)%'
+                dbname: '%env(string:APP_PDO_DB)%'
                 user: '%env(string:APP_PDO_USER)%'
                 password: '%env(string:APP_PDO_PWD)%'
-                url: '%env(string:APP_PDO_DSN)%'
