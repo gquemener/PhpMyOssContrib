@@ -30,10 +30,3 @@ services:
         arguments:
             $username: '%env(string:APP_GITHUB_USERNAME)%'
             $token: '%env(string:APP_GITHUB_TOKEN)%'
-
-    App\Prooph\MessageTransformer:
-        arguments:
-            -
-                contribution-opened: App\Contribution\Domain\Event\ContributionOpened
-                contribution-closed: App\Contribution\Domain\Event\ContributionClosed
-                contribution-merged: App\Contribution\Domain\Event\ContributionMerged
