@@ -3,16 +3,10 @@ declare(strict_types=1);
 
 namespace App\Contribution\Infrastructure\ReadModel;
 
-use Amp\Promise;
-use App\Contribution\Application\ReadModel\Contributions;
-use Prooph\EventStore\Async\EventAppearedOnPersistentSubscription;
-use Prooph\EventStore\Async\EventStorePersistentSubscription;
-use Prooph\EventStore\ResolvedEvent;
 use Doctrine\DBAL\Connection;
-use Amp\Success;
-use Prooph\EventStore\Util\Json;
+use App\Contribution\Application\ReadModel\Contributions;
 
-final class PostgreSQLContributions implements Contributions, EventAppearedOnPersistentSubscription
+final class PostgreSQLContributions implements Contributions
 {
     private const TABLE_NAME = 'contributions';
     private const PAGE_SIZE = 10;
@@ -24,37 +18,37 @@ final class PostgreSQLContributions implements Contributions, EventAppearedOnPer
         $this->connection = $connection;
     }
 
-    public function __invoke(
-        EventStorePersistentSubscription $subscription,
-        ResolvedEvent $resolvedEvent,
-        ?int $retryCount = null
-    ): Promise {
-        $event = $resolvedEvent->event();
-        $data = Json::decode($event->data());
+    //public function __invoke(
+    //    EventStorePersistentSubscription $subscription,
+    //    ResolvedEvent $resolvedEvent,
+    //    ?int $retryCount = null
+    //): Promise {
+    //    $event = $resolvedEvent->event();
+    //    $data = Json::decode($event->data());
 
-        switch ($event->eventType()) {
-            case 'contribution-opened':
-                $sql = 'INSERT INTO %s (id, title, "projectName", url, state, "createdAt", "updatedAt") VALUES (:id, :title, :projectName, :url, \'opened\', :createdAt, :updatedAt)';
-                $data['projectName'] = '???/???';
-                if (1 === preg_match('#^https://github.com/(.*)/p#', $data['url'], $matches)) {
-                    $data['projectName'] = $matches[1];
-                }
-                $this->connection->executeUpdate(sprintf($sql, self::TABLE_NAME), $data);
-                break;
+    //    switch ($event->eventType()) {
+    //        case 'contribution-opened':
+    //            $sql = 'INSERT INTO %s (id, title, "projectName", url, state, "createdAt", "updatedAt") VALUES (:id, :title, :projectName, :url, \'opened\', :createdAt, :updatedAt)';
+    //            $data['projectName'] = '???/???';
+    //            if (1 === preg_match('#^https://github.com/(.*)/p#', $data['url'], $matches)) {
+    //                $data['projectName'] = $matches[1];
+    //            }
+    //            $this->connection->executeUpdate(sprintf($sql, self::TABLE_NAME), $data);
+    //            break;
 
-            case 'contribution-closed':
-                $sql = 'UPDATE %s SET state = \'closed\', "closedAt" = :closedAt WHERE id = :id';
-                $this->connection->executeUpdate(sprintf($sql, self::TABLE_NAME), $data);
-                break;
+    //        case 'contribution-closed':
+    //            $sql = 'UPDATE %s SET state = \'closed\', "closedAt" = :closedAt WHERE id = :id';
+    //            $this->connection->executeUpdate(sprintf($sql, self::TABLE_NAME), $data);
+    //            break;
 
-            case 'contribution-merged':
-                $sql = 'UPDATE %s SET state = \'merged\' WHERE id = :id';
-                $this->connection->executeUpdate(sprintf($sql, self::TABLE_NAME), $data);
-                break;
-        }
+    //        case 'contribution-merged':
+    //            $sql = 'UPDATE %s SET state = \'merged\' WHERE id = :id';
+    //            $this->connection->executeUpdate(sprintf($sql, self::TABLE_NAME), $data);
+    //            break;
+    //    }
 
-        return new Success();
-    }
+    //    return new Success();
+    //}
 
     public function all(int $page = 1): array
     {

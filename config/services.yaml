@@ -31,59 +31,9 @@ services:
             $username: '%env(string:APP_GITHUB_USERNAME)%'
             $token: '%env(string:APP_GITHUB_TOKEN)%'
 
-    App\Contribution\Domain\Repository\ContributionRepository: '@App\Contribution\Infrastructure\Repository\EventStoreContributionRepository'
-
-    Prooph\EventStore\Async\EventStoreConnection:
-        class: Prooph\EventStore\Async\EventStoreConnection
-        factory: [Prooph\EventStoreClient\EventStoreConnectionFactory, createFromConnectionString]
-        arguments:
-            - 'connectto=%env(APP_EVENT_STORE_URI)%'
-            - '@event_store_connection_settings'
-            - 'app'
-        calls:
-            - method: connectAsync
-
-    event_store_connection_settings:
-        class: Prooph\EventStoreClient\ConnectionSettingsBuilder
-        factory: [Prooph\EventStoreClient\ConnectionSettings, create]
-        calls:
-            - method: useCustomLogger
-              arguments: ['@logger']
-              returns_clone: true
-
-            - method: enableVerboseLogging
-              returns_clone: true
-
-            - method: build
-              returns_clone: true
-
     App\Prooph\MessageTransformer:
         arguments:
             -
                 contribution-opened: App\Contribution\Domain\Event\ContributionOpened
                 contribution-closed: App\Contribution\Domain\Event\ContributionClosed
                 contribution-merged: App\Contribution\Domain\Event\ContributionMerged
-
-    read_model_contributions_connection:
-        class: App\Contribution\Infrastructure\ReadModel\PersistentSubscriptionConnection
-        factory: [App\Contribution\Infrastructure\ReadModel\PersistentSubscriptionConnection, create]
-        arguments:
-            - 'contributions'
-            - '$ce-contribution'
-            - 'postgresql-contributions-read-model'
-            - '@App\Contribution\Infrastructure\ReadModel\PostgreSQLContributions'
-
-    read_model_contributions_per_year_connection:
-        class: App\Contribution\Infrastructure\ReadModel\PersistentSubscriptionConnection
-        factory: [App\Contribution\Infrastructure\ReadModel\PersistentSubscriptionConnection, create]
-        arguments:
-            - 'contributions-per-year'
-            - '$ce-contribution'
-            - 'postgresql-contributions-per-year-read-model'
-            - '@App\Contribution\Infrastructure\ReadModel\PostgreSQLContributionsPerYear'
-
-    App\Contribution\Infrastructure\ReadModel\Registry:
-        arguments:
-            -
-                - '@read_model_contributions_connection'
-                - '@read_model_contributions_per_year_connection'

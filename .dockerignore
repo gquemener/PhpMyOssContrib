@@ -1,0 +1,7 @@
+db
+var
+vendor
+node_modules
+tags
+*.tags
+*.log

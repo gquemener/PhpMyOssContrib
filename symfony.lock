@@ -80,6 +80,9 @@
     "kelunik/certificate": {
         "version": "v1.1.2"
     },
+    "marc-mabe/php-enum": {
+        "version": "v4.2.0"
+    },
     "monolog/monolog": {
         "version": "1.25.1"
     },
@@ -95,11 +98,20 @@
     "php-http/promise": {
         "version": "v1.0.0"
     },
+    "prooph/common": {
+        "version": "v4.3.0"
+    },
     "prooph/event-store": {
         "version": "v8.0.0-rc-1"
     },
-    "prooph/event-store-client": {
-        "version": "v1.0.0-rc-1"
+    "prooph/pdo-event-store": {
+        "version": "1.7",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.7",
+            "ref": "88c30218d5ef74ede65ae40fc8e4ec9558ec2b65"
+        }
     },
     "psr/cache": {
         "version": "1.0.1"

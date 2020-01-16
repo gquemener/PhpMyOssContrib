@@ -7,13 +7,16 @@ use App\Contribution\Domain\Event\ContributionClosed;
 use App\Contribution\Domain\Event\ContributionMerged;
 use App\Contribution\Domain\Event\ContributionOpened;
 use App\Prooph\AggregateRoot;
-use App\Prooph\DomainEvent;
 use InvalidArgumentException;
-use Prooph\EventStore\EventId;
+use App\EventSourcing\AggregateChanged;
 
-final class Contribution extends AggregateRoot
+final class Contribution
 {
+    private $id;
     private ContributionState $state;
+
+    private $events = [];
+    private $version = 0;
 
     public static function open(
         ContributionId $id,
@@ -23,10 +26,9 @@ final class Contribution extends AggregateRoot
         DateTime $updatedAt
     ): self {
         $self = new self();
-        $self->recordThat(ContributionOpened::from(
-            EventId::generate(),
+        $self->recordThat(ContributionOpened::occur(
+            $id->toString(),
             [
-                'id' => $id->toString(),
                 'title' => $title,
                 'url' => $url,
                 'createdAt' => $createdAt->toString(),
@@ -40,11 +42,8 @@ final class Contribution extends AggregateRoot
     public function merge(): void
     {
         if ($this->state->equals(ContributionState::closed())) {
-            $this->recordThat(ContributionMerged::from(
-                EventId::generate(),
-                [
-                    'id' => $this->id->toString(),
-                ]
+            $this->recordThat(ContributionMerged::occur(
+                $this->id->toString()
             ));
         }
     }
@@ -52,26 +51,34 @@ final class Contribution extends AggregateRoot
     public function close(DateTime $closedAt): void
     {
         if ($this->state->equals(ContributionState::opened())) {
-            $this->recordThat(ContributionClosed::from(
-                EventId::generate(),
+            $this->recordThat(ContributionClosed::occur(
+                $this->id->toString(),
                 [
-                    'id' => $this->id->toString(),
                     'closedAt' => $closedAt->toString(),
                 ]
             ));
         }
     }
 
-    public function aggregateId(): string
+    public function id(): ContributionId
     {
-        return $this->id->toString();
+        return $this->id;
     }
 
-    protected function apply(DomainEvent $event): void
+    public function replay(\Iterator $history): void
+    {
+        foreach ($history as $pastEvent) {
+            $this->version = $pastEvent->version();
+
+            $this->apply($pastEvent);
+        }
+    }
+
+    public function apply(AggregateChanged $event): void
     {
         switch (get_class($event)) {
             case ContributionOpened::class:
-                $this->id = $event->aggregateId();
+                $this->id = $event->contributionId();
                 $this->state = ContributionState::opened();
                 break;
 
@@ -90,4 +97,20 @@ final class Contribution extends AggregateRoot
                 ));
         }
     }
+
+    public function popEvents(): array
+    {
+        $events = $this->events;
+        $this->events = [];
+
+        return $events;
+    }
+
+    private function recordThat(AggregateChanged $event): void
+    {
+        ++$this->version;
+        $this->events[] = $event->withVersion($this->version);
+        $this->apply($event);
+    }
+
 }

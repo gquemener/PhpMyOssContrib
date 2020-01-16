@@ -1,0 +1,19 @@
+services:
+    _defaults:
+        public: false
+
+    Prooph\EventStore\Pdo\PdoEventStore:
+        class: Prooph\EventStore\Pdo\PostgresEventStore
+        arguments:
+            - '@App\Prooph\FQCNMessageFactory'
+            - '@app.event_store.pdo_connection'
+            - '@app.event_store.persistence_strategy'
+
+    app.event_store.pdo_connection:
+        class: \PDO
+        factory: ['@Doctrine\DBAL\Connection', getWrappedConnection]
+
+    app.event_store.persistence_strategy:
+        class: Prooph\EventStore\Pdo\PersistenceStrategy\PostgresSingleStreamStrategy
+
+    App\Prooph\FQCNMessageFactory: ~
