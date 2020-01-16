@@ -1,8 +1,4 @@
--- Table: public.contributions
-
--- DROP TABLE public.contributions;
-
-CREATE TABLE public.contributions
+CREATE TABLE contributions
 (
     id bigint NOT NULL,
     title text COLLATE pg_catalog."default" NOT NULL,
@@ -14,8 +10,3 @@ CREATE TABLE public.contributions
     "closedAt" timestamp without time zone,
     CONSTRAINT contributions_pkey PRIMARY KEY (id)
 )
-
-TABLESPACE pg_default;
-
-ALTER TABLE public.contributions
-    OWNER to postgres;
