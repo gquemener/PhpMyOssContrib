@@ -10,6 +10,7 @@ use Symfony\Contracts\Service\ServiceSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Contribution\Application\ReadModel\Contributions;
+use App\Contribution\Infrastructure\Projector\Contributions as Projector;
 
 final class ContributionController
 {
@@ -28,5 +29,12 @@ final class ContributionController
         $response->setData($contributions->all());
 
         return $response;
+    }
+
+    public function sync(Projector $projector)
+    {
+        $projector->run();
+
+        return new Response();
     }
 }

@@ -2,6 +2,16 @@ app_contribution_index:
     path: /api/contributions
     controller: App\Controller\ContributionController::index
 
+app_admin:
+    path: /github-sync
+    methods: POST
+    controller: App\Controller\GithubController::sync
+
+app_github_sync:
+    path: /contributions-sync
+    methods: POST
+    controller: App\Controller\ContributionController::sync
+
 homepage:
     path: /{_}
     controller: App\Controller\DefaultController::index
