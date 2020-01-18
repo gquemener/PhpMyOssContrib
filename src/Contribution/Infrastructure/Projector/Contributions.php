@@ -42,7 +42,6 @@ final class Contributions
 
         foreach ($events as $event) {
             $this->connection->transactional(function(Connection $connection) use ($event) {
-                xdebug_break();
                 $this->project($event);
                 $this->persistLastPosition($event->metadata()['_position']);
             });
