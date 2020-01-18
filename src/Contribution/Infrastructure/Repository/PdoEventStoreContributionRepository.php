@@ -12,9 +12,13 @@ use Prooph\EventStore\Exception\StreamNotFound;
 use App\Prooph\DomainEvent;
 use Prooph\EventStore\Stream;
 use Prooph\Common\Messaging\DomainMessage;
+use Prooph\EventStore\Metadata\MetadataMatcher;
+use Prooph\EventStore\Metadata\Operator;
 
 final class PdoEventStoreContributionRepository implements ContributionRepository
 {
+    public const STREAM_NAME = 'contributions';
+
     private $eventStore;
 
     private $identityMap = [];
@@ -31,12 +35,26 @@ final class PdoEventStoreContributionRepository implements ContributionRepositor
             return $this->identityMap[$contributionId];
         }
 
-        $streamName = $this->streamName($id);
+        $streamName = $this->streamName();
+        $metadataMatcher = new MetadataMatcher();
+        $metadataMatcher = $metadataMatcher->withMetadataMatch(
+            '_aggregate_type',
+            Operator::EQUALS(),
+            Contribution::class
+        );
+        $metadataMatcher = $metadataMatcher->withMetadataMatch(
+            '_aggregate_id',
+            Operator::EQUALS(),
+            $contributionId
+        );
 
         try {
-            $events = $this->eventStore->load($streamName);
+            $events = $this->eventStore->load($streamName, 1, null, $metadataMatcher);
         } catch (StreamNotFound $e) {
-            return null;
+            $stream = new Stream($streamName, new \ArrayIterator([]));
+            $this->eventStore->create($stream);
+
+            return $this->find($id);
         }
 
         if (!$events->valid()) {
@@ -59,15 +77,9 @@ final class PdoEventStoreContributionRepository implements ContributionRepositor
             $contribution->popEvents()
         );
 
-        $streamName = $this->streamName($contribution->id());
         $firstEvent = \reset($events);
 
-        if (1 === $firstEvent->metadata()['_aggregate_version']) {
-            $stream = new Stream($streamName, new \ArrayIterator($events));
-            $this->eventStore->create($stream);
-        } else {
-            $this->eventStore->appendTo($streamName, new \ArrayIterator($events));
-        }
+        $this->eventStore->appendTo($this->streamName(), new \ArrayIterator($events));
 
         $contributionId = $contribution->id()->toString();
         if (isset($this->identityMap[$contributionId])) {
@@ -75,8 +87,8 @@ final class PdoEventStoreContributionRepository implements ContributionRepositor
         }
     }
 
-    private function streamName(ContributionId $id): StreamName
+    private function streamName(): StreamName
     {
-        return new StreamName(sprintf('contribution-%s', $id->toString()));
+        return new StreamName(self::STREAM_NAME);
     }
 }

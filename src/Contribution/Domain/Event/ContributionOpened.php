@@ -15,4 +15,24 @@ final class ContributionOpened extends AggregateChanged
             $this->aggregateId()
         );
     }
+
+    public function url(): string
+    {
+        return $this->payload()['url'];
+    }
+
+    public function title(): string
+    {
+        return $this->payload()['title'];
+    }
+
+    public function openedAt(): DateTime
+    {
+        return DateTime::fromString($this->payload()['createdAt']);
+    }
+
+    public function modifiedAt(): DateTime
+    {
+        return DateTime::fromString($this->payload()['updatedAt']);
+    }
 }
