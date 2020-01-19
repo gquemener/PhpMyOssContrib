@@ -16,7 +16,7 @@ COPY yarn.lock .
 COPY webpack.config.js .
 COPY assets assets
 RUN yarn install
-RUN if [ "$APP_ENV" = "dev" ] ; then yarn encore dev ; else yarn encore production ; fi
+RUN if [ "$APP_ENV" = "dev" ] ; then yarn run encore dev ; else yarn run encore production ; fi
 # Build js app
 
 # Prepare php environment
