@@ -16,8 +16,9 @@ COPY yarn.lock .
 COPY webpack.config.js .
 COPY assets assets
 RUN yarn install
-RUN if [ "$APP_ENV" = "dev" ] ; then yarn run encore dev ; else yarn run encore production ; fi
+
 # Build js app
+RUN if [ "$APP_ENV" = "dev" ] ; then yarn run encore dev ; else yarn run encore production ; fi
 
 # Prepare php environment
 FROM php:7.4-cli-alpine3.10 as php
@@ -51,6 +52,7 @@ RUN apk del .build-deps && rm -rf /tmp/*
 COPY docker/php/config/*.ini /usr/local/etc/php/conf.d/
 RUN if [ "$APP_ENV" = "prod" ] ; then rm /usr/local/etc/php/conf.d/xdebug-cli.ini; fi
 COPY . .
+COPY --from=node /root/public/build /app/public/build
 RUN php bin/console cache:warmup
 RUN php bin/console cache:clear
 
