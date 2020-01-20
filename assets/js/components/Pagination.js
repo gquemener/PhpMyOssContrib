@@ -8,7 +8,7 @@ class Pagination extends React.Component {
         return (
             <div className="pagination">
                 {
-                    [...Array(store.getPagesCount(this.props.contributions)).keys()].map(index => <PaginationLink key={index} page={index + 1} />)
+                    [...Array(store.getPagesCount(this.props.contributions)).keys()].map(index => <PaginationLink key={index} page={index + 1} active={store.isCurrentPage(this.props.contributions, index + 1)}/>)
                 }
             </div>
         )

@@ -85,11 +85,16 @@ body {
     display: inline-block;
     margin: 5px 10px;
 }
+.pagination a.active {
+    font-weight: bold;
+    color: #28a745;
+}
 
 a, a:active, a:focus {
     color: #fff;
     text-decoration: none;
     border: 0;
+    outline: 0;
 }
 
 a:hover {

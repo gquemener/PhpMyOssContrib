@@ -21,6 +21,10 @@ export const getOpenedCount = (contributions) => {
     return contributions.openedCount;
 }
 
+export const isCurrentPage = (contributions, page) => {
+    return page === contributions._page;
+}
+
 const configureStore = () => {
     const contributions = (state, action) => {
         const openedCounter = (acc, cur) => 'opened' === cur.state ? acc + 1 : acc;
@@ -33,9 +37,6 @@ const configureStore = () => {
 
             if ('opened' === cur.state) {
                 acc[org].opened++;
-            }
-            if (org === 'prooph') {
-                let a = 1;
             }
 
             acc[org].contribs++;
