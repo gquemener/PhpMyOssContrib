@@ -21,39 +21,30 @@ RUN yarn install
 RUN if [ "$APP_ENV" = "dev" ] ; then yarn run encore dev ; else yarn run encore production ; fi
 
 # Prepare php environment
-FROM php:7.4-cli-alpine3.10 as php
+FROM php:7.4-apache as php
 
 ARG APP_ENV=dev
 ENV APP_ENV=$APP_ENV
+ENV APACHE_DOCUMENT_ROOT /app/public
 
 WORKDIR /app/
 COPY --from=composer /root/vendor /app/vendor
 COPY --from=node /root/node_modules /app/node_modules
 
-ENV PHPIZE_DEPS \
-        autoconf \
-        cmake \
-        file \
-        g++ \
-        gcc \
-        libc-dev \
-        pcre-dev \
-        make \
-        git \
-        pkgconf \
-        re2c
-
-RUN apk add --no-cache --virtual .persistent-deps postgresql-dev
-RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS
-RUN docker-php-ext-configure pdo_pgsql --with-pgsql
+RUN apt-get update && apt-get install -y --no-install-recommends libpq-dev && rm -rf /var/lib/apt/lists/*
+RUN docker-php-ext-configure pdo_pgsql
 RUN docker-php-ext-install -j$(nproc) pdo_pgsql pcntl opcache
 RUN if [ "$APP_ENV" = "dev" ] ; then pecl -d preferred_state=beta install xdebug; fi
-RUN apk del .build-deps && rm -rf /tmp/*
 COPY docker/php/config/*.ini /usr/local/etc/php/conf.d/
 RUN if [ "$APP_ENV" = "prod" ] ; then rm /usr/local/etc/php/conf.d/xdebug-cli.ini; fi
+
+COPY docker/php/apache/site.conf /etc/apache2/sites-available/000-default.conf
+COPY docker/php/apache/ports.conf /etc/apache2/ports.conf
+RUN a2enmod rewrite
+RUN if [ "$APP_ENV" = "dev" ] ; then mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"; fi
+RUN if [ "$APP_ENV" = "prod" ] ; then mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"; fi
+
 COPY . .
 COPY --from=node /root/public/build /app/public/build
 RUN php bin/console cache:warmup
 RUN php bin/console cache:clear
-
-ENTRYPOINT docker/php/server-entrypoint.sh
